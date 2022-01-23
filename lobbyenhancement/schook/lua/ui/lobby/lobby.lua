@@ -1281,6 +1281,8 @@ local function UpdateGame()
         end
     end
 
+
+   
     -- Change the Slot Background by Slot State -- Xinnony
     for i = 1, LobbyComm.maxPlayerSlots do
         if GUI.slots[i].closed then
@@ -1355,6 +1357,26 @@ local function UpdateGame()
 			end
         end
     end
+
+    -- StartGame show only if you Host and Enable only if All Player is Ready.
+    if lobbyComm:IsHost() then
+        if not GUI.launchGameButton:IsDisabled() then--and GetPlayersNotReady() then
+            if GetPlayersNotReady() then
+                GUI.launchGameButton:SetTexture(UIUtil.UIFile('/BUTTON/large/_dis.png'))
+            else
+                GUI.launchGameButton:SetTexture(UIUtil.UIFile('/BUTTON/large/_up.png'))
+            end
+        else--if GUI.launchGameButton:IsDisabled() then--and not GetPlayersNotReady() then
+            GUI.launchGameButton:SetTexture(UIUtil.UIFile('/BUTTON/large/_dis.png'))
+        end
+    end
+    -- Exit button (exitButton)
+    if GUI.exitButton:IsDisabled() then
+        GUI.exitButton:SetTexture(UIUtil.UIFile('/BUTTON/medium/_dis.png'))
+    else
+        GUI.exitButton:SetTexture(UIUtil.UIFile('/BUTTON/medium/_up.png'))
+    end
+
     RefreshOptionDisplayData(scenarioInfo)
 	
     LOG("HERE IT IS"..repr({            
@@ -1957,20 +1979,78 @@ function CreateUI(maxPlayers, useSteam)
     ---------------------------------------------------------------------------
     -- set up launch panel
     ---------------------------------------------------------------------------
-    GUI.launchGameButton = UIUtil.CreateButtonStd(GUI.launchPanel, '/scx_menu/large-no-bracket-btn/large', "<LOC lobui_0212>Launch", 18, 4)
-    GUI.exitButton = UIUtil.CreateButtonStd(GUI.launchPanel, '/scx_menu/small-btn/small', "", 18, 4)
+    -- LAUNCH THE GAME BUTTON --
+    GUI.launchGameButton = UIUtil.CreateButtonStd2PNG(GUI.launchPanel, '/BUTTON/large/', "<LOC lobui_0212>Launch", 16, -1)
+        LayoutHelpers.AtCenterIn(GUI.launchGameButton, GUI.launchPanel, 20, -345)
+        Tooltip.AddButtonTooltip(GUI.launchGameButton, 'Lobby_Launch')
+        GUI.launchGameButton:Hide() -- hide unless we're the game host
+        GUI.launchGameButton.OnClick = function(self)
+            TryLaunch(false)
+        end
+    -- GUI.launchGameButton = UIUtil.CreateButtonStd(GUI.launchPanel, '/scx_menu/large-no-bracket-btn/large', "<LOC lobui_0212>Launch", 18, 4)
+    -- LayoutHelpers.AtCenterIn(GUI.launchGameButton, GUI.launchPanel, -1, -22)
+    ----------------------------------------------------------------------------
 
-    --if GpgNetActive() then
-    --    GUI.exitButton.label:SetText(LOC("<LOC _Exit>"))
-    --else
-        GUI.exitButton.label:SetText(LOC("<LOC _Back>"))
-    --end
+    -- EXIT BUTTON --
+    GUI.exitButton = UIUtil.CreateButtonStd2PNG(GUI.launchPanel, '/BUTTON/medium/','Exit', 11, -1)--, textOffsetHorz, clickCue, rolloverCue)
+        -- if GpgNetActive() then
+        --     GUI.exitButton.label:SetText(LOC("<LOC _Exit>"))
+        -- else
+            GUI.exitButton.label:SetText(LOC("<LOC _Back>"))
+        -- end
+        import('/lua/ui/uimain.lua').SetEscapeHandler(function() GUI.exitButton.OnClick(GUI.exitButton) end)
+        LayoutHelpers.AtLeftIn(GUI.exitButton, GUI.chatPanel, 22)
+        LayoutHelpers.AtVerticalCenterIn(GUI.exitButton, GUI.launchGameButton)
+    GUI.exitButton.OnClick = function(self)
+        GUI.chatEdit:AbandonFocus()
+        UIUtil.QuickDialog(GUI,
+            "<LOC lobby_0000>Exit game lobby?",
+            "<LOC _Yes>", function()
+                    ReturnToMenu(false)
+                end,
+            "<LOC _Cancel>", function()
+                    GUI.chatEdit:AcquireFocus()
+                end,
+            nil, nil,
+            true,
+            {worldCover = true, enterButton = 1, escapeButton = 2})
+    end
+
+    -- GUI.exitButton = UIUtil.CreateButtonStd(GUI.launchPanel, '/scx_menu/small-btn/small', "", 18, 4)
+    -- --if GpgNetActive() then
+    -- --    GUI.exitButton.label:SetText(LOC("<LOC _Exit>"))
+    -- --else
+    -- GUI.exitButton.label:SetText(LOC("<LOC _Back>"))
+    -- --end
     
-    import('/lua/ui/uimain.lua').SetEscapeHandler(function() GUI.exitButton.OnClick(GUI.exitButton) end)
+    -- import('/lua/ui/uimain.lua').SetEscapeHandler(function() GUI.exitButton.OnClick(GUI.exitButton) end)
+    -- LayoutHelpers.AtLeftIn(GUI.exitButton, GUI.chatPanel, 10)
+    -- LayoutHelpers.AtVerticalCenterIn(GUI.exitButton, GUI.launchGameButton)
+    -- GUI.exitButton.OnClick = function(self)
+    --     GUI.chatEdit:AbandonFocus()
+    --     UIUtil.QuickDialog(GUI,
+    --         "<LOC lobby_0000>Exit game lobby?",
+    --         "<LOC _Yes>", function() 
+    --                 ReturnToMenu()
+    --             end,
+    --         "<LOC _Cancel>", function()
+    --                 GUI.chatEdit:AcquireFocus()
+    --             end, 
+    --         nil, nil, 
+    --         true,
+    --         {worldCover = true, enterButton = 1, escapeButton = 2})
+        
+    -- end
+    ----------------------------------------------------------------------------
 
-    LayoutHelpers.AtCenterIn(GUI.launchGameButton, GUI.launchPanel, -1, -22)
-    LayoutHelpers.AtLeftIn(GUI.exitButton, GUI.chatPanel, 10)
-    LayoutHelpers.AtVerticalCenterIn(GUI.exitButton, GUI.launchGameButton)
+
+
+    
+    
+
+    
+
+    
 	
 	GUI.randomMapButton = UIUtil.CreateButtonStd(GUI.launchPanel, '/scx_menu/small-btn/small', "Random Map", 18, 4)
 	LayoutHelpers.RightOf(GUI.randomMapButton, GUI.exitButton)
@@ -1981,38 +2061,31 @@ function CreateUI(maxPlayers, useSteam)
 		import('/lua/ui/dialogs/mapselect.lua').randomLobbyMap(self)
 	end
 
-    GUI.launchGameButton:UseAlphaHitTest(false)
-    GUI.launchGameButton.glow = Bitmap(GUI.launchGameButton, UIUtil.UIFile('/menus/main03/large_btn_glow.dds'))
-    LayoutHelpers.AtCenterIn(GUI.launchGameButton.glow, GUI.launchGameButton)
-    GUI.launchGameButton.glow:SetAlpha(0)
-    GUI.launchGameButton.glow:DisableHitTest()
-    GUI.launchGameButton.OnRolloverEvent = function(self, event) 
-           if event == 'enter' then
-            EffectHelpers.FadeIn(self.glow, .25, 0, 1)
-            self.label:SetColor('black')
-        elseif event == 'down' then
-            self.label:SetColor('black')
-        else
-            EffectHelpers.FadeOut(self.glow, .4, 1, 0)
-            self.label:SetColor(UIUtil.fontColor)
-        end
-    end
+    -- GUI.launchGameButton:UseAlphaHitTest(false)
+    -- GUI.launchGameButton.glow = Bitmap(GUI.launchGameButton, UIUtil.UIFile('/menus/main03/large_btn_glow.dds'))
+    -- LayoutHelpers.AtCenterIn(GUI.launchGameButton.glow, GUI.launchGameButton)
+    -- GUI.launchGameButton.glow:SetAlpha(0)
+    -- GUI.launchGameButton.glow:DisableHitTest()
+    -- GUI.launchGameButton.OnRolloverEvent = function(self, event) 
+    --        if event == 'enter' then
+    --         EffectHelpers.FadeIn(self.glow, .25, 0, 1)
+    --         self.label:SetColor('black')
+    --     elseif event == 'down' then
+    --         self.label:SetColor('black')
+    --     else
+    --         EffectHelpers.FadeOut(self.glow, .4, 1, 0)
+    --         self.label:SetColor(UIUtil.fontColor)
+    --     end
+    -- end
     
-    GUI.launchGameButton.pulse = Bitmap(GUI.launchGameButton, UIUtil.UIFile('/menus/main03/large_btn_glow.dds'))
-    LayoutHelpers.AtCenterIn(GUI.launchGameButton.pulse, GUI.launchGameButton)
-    GUI.launchGameButton.pulse:DisableHitTest()
-    GUI.launchGameButton.pulse:SetAlpha(.5)
-    EffectHelpers.Pulse(GUI.launchGameButton.pulse, 2, .5, 1)
-    
-    Tooltip.AddButtonTooltip(GUI.launchGameButton, 'Lobby_Launch')
+    -- GUI.launchGameButton.pulse = Bitmap(GUI.launchGameButton, UIUtil.UIFile('/menus/main03/large_btn_glow.dds'))
+    -- LayoutHelpers.AtCenterIn(GUI.launchGameButton.pulse, GUI.launchGameButton)
+    -- GUI.launchGameButton.pulse:DisableHitTest()
+    -- GUI.launchGameButton.pulse:SetAlpha(.5)
+    -- EffectHelpers.Pulse(GUI.launchGameButton.pulse, 2, .5, 1)
 
+    --------------------------------------------------------------------------
 
-    -- hide unless we're the game host
-    GUI.launchGameButton:Hide()
-
-    GUI.launchGameButton.OnClick = function(self)
-                                       TryLaunch(false)
-                                   end
     ---------------------------------------------------------------------------
     -- set up chat display
     ---------------------------------------------------------------------------
@@ -2857,23 +2930,6 @@ function CreateUI(maxPlayers, useSteam)
     -- other logic, including lobby callbacks
     ---------------------------------------------------------------------------
     GUI.posGroup = false
-
---  control behvaior
-    GUI.exitButton.OnClick = function(self)
-        GUI.chatEdit:AbandonFocus()
-        UIUtil.QuickDialog(GUI,
-            "<LOC lobby_0000>Exit game lobby?",
-            "<LOC _Yes>", function() 
-                    ReturnToMenu()
-                end,
-            "<LOC _Cancel>", function()
-                    GUI.chatEdit:AcquireFocus()
-                end, 
-            nil, nil, 
-            true,
-            {worldCover = true, enterButton = 1, escapeButton = 2})
-        
-    end
 
 -- get ping times
     GUI.pingThread = ForkThread(
