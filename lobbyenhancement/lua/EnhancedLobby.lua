@@ -24,9 +24,9 @@ local versionstrings = import('/lua/LEMLobbyOptions.lua').versionstrings
 #-----------------------------------------------------
 function GetLEMVersion(short)
 	if short then
-		return 'LEM4.6.1'
+		return 'LEM4.6.2'
 	else
-		return 'Lobby Enhancement Mod 4.6.1'
+		return 'Lobby Enhancement Mod 4.6.2'
 	end
 end
 

@@ -1875,9 +1875,9 @@ function CreateUI(maxPlayers, useSteam)
 
     -- Chat
     GUI.chatPanel = Group(GUI.panel, "chatPanel")
-    LayoutHelpers.AtLeftTopIn(GUI.chatPanel, GUI.panel, 11, 459)
-    GUI.chatPanel.Width:Set( 478 )
-    GUI.chatPanel.Height:Set( 245 )
+    LayoutHelpers.AtLeftTopIn(GUI.chatPanel, GUI.panel, 49, 230)
+    GUI.chatPanel.Width:Set(388)
+    GUI.chatPanel.Height:Set(184)
     -- LayoutHelpers.AtLeftTopIn(GUI.chatPanel, GUI.panel, 40, 521)
     -- GUI.chatPanel.Width:Set(705)
     -- GUI.chatPanel.Height:Set(150)
@@ -1887,12 +1887,12 @@ function CreateUI(maxPlayers, useSteam)
 
     -- Map Preview
     GUI.mapPanel = Group(GUI.panel, "mapPanel")
-    LayoutHelpers.AtLeftTopIn(GUI.mapPanel, GUI.panel, 813, 88)
+    LayoutHelpers.AtLeftTopIn(GUI.mapPanel, GUI.panel, 750, 90)
     GUI.mapPanel.Width:Set( 198 )
     GUI.mapPanel.Height:Set( 198 )
 
     GUI.optionsPanel = Group(GUI.panel, "optionsPanel")
-    LayoutHelpers.AtLeftTopIn(GUI.optionsPanel, GUI.panel, 746, 600)
+    LayoutHelpers.AtLeftTopIn(GUI.optionsPanel, GUI.panel, 312, 700)
     GUI.optionsPanel.Width:Set(238)
     GUI.optionsPanel.Height:Set(260)
 
@@ -1905,7 +1905,7 @@ function CreateUI(maxPlayers, useSteam)
     -- set up map panel
     ---------------------------------------------------------------------------
     local mapOverlay = Bitmap(GUI.mapPanel, UIUtil.SkinnableFile("/lobby/lan-game-lobby/map-pane-border_bmp.dds"))
-    LayoutHelpers.AtLeftTopIn(mapOverlay, GUI.panel, 750, 69) #74
+    LayoutHelpers.AtLeftTopIn(mapOverlay, GUI.panel, 750, 80) #74
     mapOverlay:DisableHitTest()
 
     GUI.mapView = MapPreview(GUI.mapPanel)
@@ -1913,15 +1913,24 @@ function CreateUI(maxPlayers, useSteam)
     GUI.mapView.Width:Set(195)
     GUI.mapView.Height:Set(195)
 
-    mapOverlay.Depth:Set(function() return GUI.mapView.Depth() + 10 end)
+    -- Zoom button
+    GUI.LargeMapPreview = UIUtil.CreateButtonStd2PNG(GUI.mapView, '/BUTTON/zoom/', "", 8, 0)
+        LayoutHelpers.AtRightIn(GUI.LargeMapPreview, GUI.mapView, -3)
+        LayoutHelpers.AtBottomIn(GUI.LargeMapPreview, GUI.mapView, -3)
+        Tooltip.AddButtonTooltip(GUI.LargeMapPreview, 'lob_click_LargeMapPreview')
+        GUI.LargeMapPreview.OnClick = function()
+            CreateBigPreview(501, GUI.mapPanel)
+        end
+
+    -- mapOverlay.Depth:Set(function() return GUI.mapView.Depth() + 10 end)
 
     GUI.mapName = UIUtil.CreateText(GUI.mapPanel, "", 16, UIUtil.titleFont)
     GUI.mapName:SetColor(UIUtil.bodyColor)
-    LayoutHelpers.CenteredBelow(GUI.mapName, mapOverlay, 15) #10
+    LayoutHelpers.CenteredBelow(GUI.mapName, mapOverlay, 5) #10
 
     GUI.changeMapButton = UIUtil.CreateButtonStd(GUI.mapPanel, '/scx_menu/small-btn/small', "<LOC map_sel_0000>Game Options", 12, 2)
-    LayoutHelpers.AtBottomIn(GUI.changeMapButton, GUI.mapPanel, -6)
-    LayoutHelpers.AtHorizontalCenterIn(GUI.changeMapButton, GUI.mapPanel)
+    LayoutHelpers.AtTopIn(GUI.changeMapButton, GUI.mapPanel, -40)
+    LayoutHelpers.AtHorizontalCenterIn(GUI.changeMapButton, mapOverlay)
 
     Tooltip.AddButtonTooltip(GUI.changeMapButton, 'lob_select_map')
 
@@ -1999,7 +2008,7 @@ function CreateUI(maxPlayers, useSteam)
             GUI.exitButton.label:SetText(LOC("<LOC _Back>"))
         -- end
         import('/lua/ui/uimain.lua').SetEscapeHandler(function() GUI.exitButton.OnClick(GUI.exitButton) end)
-        LayoutHelpers.AtLeftIn(GUI.exitButton, GUI.chatPanel, 22)
+        LayoutHelpers.AtLeftIn(GUI.exitButton, GUI.chatPanel, 30)
         LayoutHelpers.AtVerticalCenterIn(GUI.exitButton, GUI.launchGameButton)
     GUI.exitButton.OnClick = function(self)
         GUI.chatEdit:AbandonFocus()
@@ -2393,13 +2402,21 @@ function CreateUI(maxPlayers, useSteam)
     UIUtil.CreateVertScrollbarFor(GUI.OptionContainer)
     
     if singlePlayer then
-        GUI.loadButton = UIUtil.CreateButtonStd(GUI.optionsPanel, '/scx_menu/small-btn/small', "<LOC lobui_0176>Load", 18, 2)
-        LayoutHelpers.LeftOf(GUI.loadButton, GUI.launchGameButton, 10)
-        LayoutHelpers.AtVerticalCenterIn(GUI.loadButton, GUI.launchGameButton)
-        GUI.loadButton.OnClick = function(self, modifiers)
-            import('/lua/ui/dialogs/saveload.lua').CreateLoadDialog(GUI)
-        end
-        Tooltip.AddButtonTooltip(GUI.loadButton, 'Lobby_Load')
+        -- LOAD BUTTON
+        -- GUI.loadButton = UIUtil.CreateButtonStd(GUI.optionsPanel, '/scx_menu/small-btn/small', "<LOC lobui_0176>Load", 18, 2)
+        -- LayoutHelpers.LeftOf(GUI.loadButton, GUI.launchGameButton, 10)
+        -- LayoutHelpers.AtVerticalCenterIn(GUI.loadButton, GUI.launchGameButton)
+        -- GUI.loadButton.OnClick = function(self, modifiers)
+        --     import('/lua/ui/dialogs/saveload.lua').CreateLoadDialog(GUI)
+        -- end
+        -- Tooltip.AddButtonTooltip(GUI.loadButton, 'Lobby_Load')
+        GUI.loadButton = UIUtil.CreateButtonStd2PNG(GUI.optionsPanel, '/BUTTON/small/',"<LOC lobui_0176>Load", 18, 2)
+            LayoutHelpers.LeftOf(GUI.loadButton, GUI.launchGameButton, 10)
+            LayoutHelpers.AtVerticalCenterIn(GUI.loadButton, GUI.launchGameButton)
+            GUI.loadButton.OnClick = function(self, modifiers)
+                import('/lua/ui/dialogs/saveload.lua').CreateLoadDialog(GUI)
+            end
+            Tooltip.AddButtonTooltip(GUI.loadButton, 'Lobby_Load')
     elseif not lobbyComm:IsHost() then
         GUI.restrictedUnitsButton = UIUtil.CreateButtonStd(GUI.optionsPanel, '/scx_menu/small-btn/small', "<LOC lobui_0376>Unit Manager", 14, 2)
         LayoutHelpers.LeftOf(GUI.restrictedUnitsButton, GUI.launchGameButton, 10)
@@ -2455,7 +2472,7 @@ function CreateUI(maxPlayers, useSteam)
     GUI.labelGroup.Width:Set(690)
     GUI.labelGroup.Height:Set(31)
 
-    LayoutHelpers.AtLeftTopIn(GUI.labelGroup, GUI.playerPanel, 5, 5)
+    LayoutHelpers.AtLeftTopIn(GUI.labelGroup, GUI.playerPanel, 5, 0)
 
     GUI.nameLabel = UIUtil.CreateText(GUI.labelGroup, "<LOC lobui_0213>Player Name", 14, UIUtil.titleFont)
     LayoutHelpers.AtLeftIn(GUI.nameLabel, GUI.panel, slotColumnSizes.player.x)
@@ -2520,7 +2537,7 @@ function CreateUI(maxPlayers, useSteam)
 
         --// Slot Background
         GUI.slots[i].SlotBackground = Bitmap(GUI, UIUtil.SkinnableFile("/SLOT/slot-dis.png"))
-            LayoutHelpers.AtBottomIn(GUI.slots[i].SlotBackground, GUI.slots[i], -6)
+            LayoutHelpers.AtBottomIn(GUI.slots[i].SlotBackground, GUI.slots[i], 6)
             LayoutHelpers.AtLeftIn(GUI.slots[i].SlotBackground, GUI.slots[i], 0)
         --\\ Stop Slot Background
 		
@@ -2721,7 +2738,8 @@ function CreateUI(maxPlayers, useSteam)
         if i == 1 then
             LayoutHelpers.Below(GUI.slots[i], GUI.labelGroup)
         else
-            LayoutHelpers.Below(GUI.slots[i], GUI.slots[i - 1], 3)
+            --LayoutHelpers.Below(GUI.slots[i], GUI.slots[i - 1], 3)
+            LayoutHelpers.Below(GUI.slots[i], GUI.slots[i - 1], -2)
         end
     end
 
@@ -3792,3 +3810,104 @@ function DebugDump()
         lobbyComm:DebugDump()
     end
 end
+
+
+LrgMap = false
+function CreateBigPreview(depth, parent)
+    local MapPreview = import('/lua/ui/controls/mappreview.lua').MapPreview
+
+    if LrgMap then
+        CloseBigPreview()
+    end
+    LrgMap = MapPreview(parent)
+    LrgMap.OnDestroy = function(self) LrgMap = false end
+    LrgMap.Width:Set(710)
+    LrgMap.Height:Set(710)
+    LrgMap.Depth:Set(depth)
+    LrgMap:Show() -- for accessibility from mapselect.lua
+    LrgMap.Overlay = Bitmap(LrgMap, UIUtil.SkinnableFile("/lobby/lan-game-lobby/map-pane-border_bmp.dds"))
+    LrgMap.Overlay.Height:Set(830)
+    LrgMap.Overlay.Width:Set(830)
+
+    LrgMap.Top:Set(function() return GetFrame(0).Height()/2-LrgMap.Overlay.Height()/2 + 60 end)
+    LrgMap.Left:Set(function() return GetFrame(0).Width()/2-LrgMap.Overlay.Width()/2 + 60 end)
+    LrgMap.Overlay.Top:Set(function() return LrgMap.Top() - 60 end)
+    LrgMap.Overlay.Left:Set(function() return LrgMap.Left() - 60 end)
+
+    LrgMap.Overlay.Depth:Set(function() return LrgMap.Depth()+1 end)
+
+    LrgMap.CloseBtn = UIUtil.CreateButtonStd(LrgMap, '/dialogs/close_btn/close', "", 12, 2, 0, "UI_Tab_Click_01",
+                                             "UI_Tab_Rollover_01")
+    LayoutHelpers.AtRightTopIn(LrgMap.CloseBtn, LrgMap, -15, -10)
+    LrgMap.CloseBtn.Depth:Set(function() return LrgMap.Overlay.Depth()+1 end)
+    LrgMap.CloseBtn.OnClick = function()
+        CloseBigPreview()
+    end
+
+    scenarioInfo = MapUtil.LoadScenario(gameInfo.GameOptions.ScenarioFile)
+    if scenarioInfo and scenarioInfo.map and (scenarioInfo.map != '') then
+        if not LrgMap:SetTexture(scenarioInfo.preview) then
+            LrgMap:SetTextureFromMap(scenarioInfo.map)
+        end
+    end
+
+    local mapdata = {}
+    doscript('/lua/dataInit.lua', mapdata) -- needed for the format of _save files
+    doscript(scenarioInfo.save, mapdata) -- ...
+
+    local allmarkers = mapdata.Scenario.MasterChain['_MASTERCHAIN_'].Markers -- get the markers from the save file
+    local massmarkers = {}
+    local hydromarkers = {}
+
+    for markname in allmarkers do
+        if allmarkers[markname]['type'] == "Mass" then
+            table.insert(massmarkers, allmarkers[markname])
+        elseif allmarkers[markname]['type'] == "Hydrocarbon" then
+            table.insert(hydromarkers, allmarkers[markname])
+        end
+    end
+
+    LrgMap.massmarkers = {}
+    for i = 1, table.getn(massmarkers) do
+        LrgMap.massmarkers[i] = Bitmap(LrgMap, UIUtil.SkinnableFile("/game/build-ui/icon-mass_bmp.dds"))
+        LrgMap.massmarkers[i].Width:Set(10)
+        LrgMap.massmarkers[i].Height:Set(10)
+        LrgMap.massmarkers[i].Left:Set(LrgMap.Left() + massmarkers[i].position[1]/scenarioInfo.size[1]*LrgMap.Width() -
+                                       LrgMap.massmarkers[i].Width()/2)
+        LrgMap.massmarkers[i].Top:Set(LrgMap.Top() + massmarkers[i].position[3]/scenarioInfo.size[2]*LrgMap.Height() -
+                                      LrgMap.massmarkers[i].Height()/2)
+    end
+    LrgMap.hydros = {}
+    for i = 1, table.getn(hydromarkers) do
+        LrgMap.hydros[i] = Bitmap(LrgMap, UIUtil.SkinnableFile("/game/build-ui/icon-energy_bmp.dds"))
+        LrgMap.hydros[i].Width:Set(14)
+        LrgMap.hydros[i].Height:Set(14)
+        LrgMap.hydros[i].Left:Set(LrgMap.Left() + hydromarkers[i].position[1]/scenarioInfo.size[1]*LrgMap.Width() -
+                                  LrgMap.hydros[i].Width()/2)
+        LrgMap.hydros[i].Top:Set(LrgMap.Top() + hydromarkers[i].position[3]/scenarioInfo.size[2]*LrgMap.Height() -
+                                 LrgMap.hydros[i].Height()/2)
+    end
+
+    -- start positions
+    LrgMap.markers = {}
+    NewShowMapPositions(LrgMap,scenarioInfo,GetPlayerCount())
+end -- CreateBigPreview(...)
+
+function CloseBigPreview()
+    if LrgMap then
+        LrgMap.CloseBtn:Destroy()
+        LrgMap.Overlay:Destroy()
+        for i = 1, table.getn(LrgMap.massmarkers) do
+            LrgMap.massmarkers[i]:Destroy()
+        end
+        for i = 1, table.getn(LrgMap.hydros) do
+            LrgMap.hydros[i]:Destroy()
+        end
+        LrgMap:Destroy()
+        LrgMap = false
+    end
+end -- CloseBigPreview()
+
+
+
+
