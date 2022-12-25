@@ -2,8 +2,8 @@
 # Lobby communications and common services
 #
 quietTimeout = 10000.0 # milliseconds to wait before booting people
-maxPlayerSlots = 12
-maxConnections = 20 # count doesn't include ourself.
+maxPlayerSlots = 16
+maxConnections = 32 # count doesn't include ourself.
 
 Strings = {
     # General info strings
