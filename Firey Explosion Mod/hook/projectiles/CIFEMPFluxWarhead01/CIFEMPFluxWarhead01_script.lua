@@ -32,6 +32,7 @@ CIFEMPFluxWarhead01 = Class(CEMPFluxWarheadProjectile) {
             local pos = self:GetPosition()
             pos[2] = pos[2] + 20
             Warp( nukeProjectile, pos)
+            nukeProjectile:PassDamageData(self.DamageData)
             nukeProjectile:PassData(self.Data)
         end
         CEMPFluxWarheadProjectile.OnImpact(self, TargetType, TargetEntity)

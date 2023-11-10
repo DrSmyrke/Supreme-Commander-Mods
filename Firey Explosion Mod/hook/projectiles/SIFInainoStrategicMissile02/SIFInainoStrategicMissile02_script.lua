@@ -5,7 +5,7 @@
 #**
 #**  Summary  :  Inaino Strategic Missile Projectile script, XSS0302
 #**
-#**  Copyright © 2007 Gas Powered Games, Inc.  All rights reserved.
+#**  Copyright ï¿½ 2007 Gas Powered Games, Inc.  All rights reserved.
 #****************************************************************************
 local SIFInainoStrategicMissile = import('/lua/seraphimprojectiles.lua').SIFInainoStrategicMissile
 
@@ -55,6 +55,7 @@ SIFInainoStrategicMissile02 = Class(SIFInainoStrategicMissile) {
             end
     
             nukeProjectile = self:CreateProjectile('/effects/entities/InainoEffectController01/InainoEffectController01_proj.bp', 0, 0, 0, nil, nil, nil):SetCollision(false)
+            nukeProjectile:PassDamageData(self.DamageData)
             nukeProjectile:PassData(self.Data)
         end
         SIFInainoStrategicMissile.OnImpact(self, TargetType, TargetEntity)

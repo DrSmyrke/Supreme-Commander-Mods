@@ -5,7 +5,7 @@
 #**
 #**  Summary  :  Experimental Strategic Missile Projectile script, XSB2401
 #**
-#**  Copyright © 2007 Gas Powered Games, Inc.  All rights reserved.
+#**  Copyright ï¿½ 2007 Gas Powered Games, Inc.  All rights reserved.
 #****************************************************************************
 
 local SExperimentalStrategicMissile = import('/lua/seraphimprojectiles.lua').SExperimentalStrategicMissile
@@ -58,6 +58,7 @@ SIFExperimentalStrategicMissile01 = Class(SExperimentalStrategicMissile) {
             local pos = self:GetPosition()
             pos[2] = pos[2] + 20
             Warp( nukeProjectile, pos)
+            nukeProjectile:PassDamageData(self.DamageData)
             nukeProjectile:PassData(self.Data)
         end
         SExperimentalStrategicMissile.OnImpact(self, TargetType, TargetEntity)

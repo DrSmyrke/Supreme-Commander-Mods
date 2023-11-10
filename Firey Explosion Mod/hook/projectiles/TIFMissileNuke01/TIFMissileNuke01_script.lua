@@ -29,6 +29,7 @@ TIFMissileNuke01 = Class(TIFMissileNuke) {
             end
            
 			nukeProjectile = self:CreateProjectile('/effects/Entities/UEFNukeEffectController01/UEFNukeEffectController01_proj.bp', 0, 0, 0, nil, nil, nil):SetCollision(false)
+            nukeProjectile:PassDamageData(self.DamageData)
             nukeProjectile:PassData(self.Data)
         end
         TIFMissileNuke.OnImpact(self, TargetType, TargetEntity)

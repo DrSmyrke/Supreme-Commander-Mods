@@ -16,6 +16,7 @@ AIFQuantumWarhead01 = Class(AQuantumWarheadProjectile) {
             end
 
             nukeProjectile = self:CreateProjectile('/projectiles/AIFQuantumWarhead02/AIFQuantumWarhead02_proj.bp', 0, 0, 0, nil, nil, nil):SetCollision(false)
+            nukeProjectile:PassDamageData(self.DamageData)
             nukeProjectile:PassData(self.Data)
         end
         AQuantumWarheadProjectile.OnImpact(self, TargetType, TargetEntity)
